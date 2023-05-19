@@ -25,7 +25,7 @@ if (key_reverse_digits.status === PsychoJS.Status.STARTED && state_of_digits_spa
         imagine_dreapta_b.opacity = 0;
         imagine_dreapta_c.opacity = 0;
         raspuns_participant.stop();
-        random_digits_span = getRandomDigits(digits_for_reverse_digits, digits_count_for_reverse_digits);
+        random_digits_span = getRandomDigits(digits_for_reverse_digits, digits_count_for_reverse_digits, is_control_trial);
         digits_info.setText(random_digits_span);
         state_of_digits_span = digits_states_object.show;
     }
@@ -61,12 +61,15 @@ if(key_reverse_digits.status === PsychoJS.Status.STARTED && state_of_digits_span
             textbox.opacity = 0;
             textbox.setText('');
             random_digits_span = '';
+            imagine_dreapta_a.opacity = 1;
+            imagine_dreapta_b.opacity = 1;
+            imagine_dreapta_c.opacity = 1;
             state_of_digits_span = digits_states_object.correct;
         } else {
             digits_info.opacity = 1;
             textbox.opacity = 0;
             textbox.setText('');
-            random_digits_span = getRandomDigits(digits_for_reverse_digits, digits_count_for_reverse_digits);
+            random_digits_span = getRandomDigits(digits_for_reverse_digits, digits_count_for_reverse_digits, is_control_trial);
             digits_info.setText(random_digits_span);
             state_of_digits_span = digits_states_object.show;
         }
@@ -75,18 +78,18 @@ if(key_reverse_digits.status === PsychoJS.Status.STARTED && state_of_digits_span
 
 if(state_of_digits_span === digits_states_object.correct) {
     model_stanga.setAutoDraw(true);
-    if(start_time > 0) {
+    should_count_time = !can_check_gaze_on_breakpoint && start_time > 0;
+    if(should_count_time) {
         end_time = Date.now();
         time_counter += (end_time - start_time);
     }
     start_time = Date.now();
-    if(time_counter >= (show_model_for_seconds_on_correct_digits * 1000)) {
+    can_check_gaze_on_breakpoint = can_check_gaze_on_breakpoint || ( time_counter >= (show_model_for_at_least_seconds_on_correct_digits * 1000) );
+    if(can_check_gaze_on_breakpoint && getGazePosition()[0] > screen_x_breakpoint_to_hide_model) {
+        can_check_gaze_on_breakpoint = false;
         start_time = 0;
         end_time = 0;
         time_counter = 0;
-        imagine_dreapta_a.opacity = 1;
-        imagine_dreapta_b.opacity = 1;
-        imagine_dreapta_c.opacity = 1;
         state_of_digits_span = digits_states_object.task;
         raspuns_participant.start();
     }
